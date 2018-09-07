@@ -1,9 +1,30 @@
 const express = require('express');
 const bodyParser = require ('body-parser');
+const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
+const knex = require('knex');
 
 
 const app = express();
 app.use(bodyParser.json());
+
+const db = require('knex')({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1',
+    user : 'Joy',
+    password : '',
+    database : 'stickie'
+  }
+});
+
+
+
+
+
+
+
+
 
 app.listen(3001, () => {
   console.log('Beep boop! Server listening on port 3001!');
