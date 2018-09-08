@@ -7,6 +7,7 @@ const knex = require('knex');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 const db = require('knex')({
   client: 'pg',
@@ -19,6 +20,52 @@ const db = require('knex')({
 });
 
 
+
+
+//REGISTER
+app.post('/register', (req, res)=> {
+  const {name, username, password} = req.body;
+  const hash = bcrypt.hashSync(password);
+
+  db.transaction(trx => {
+    trx.insert({
+      hash: hash,
+      username: username
+    })
+    .into('login')
+    .returning('username')
+    .then(newUsername=> {
+      return trx('users')
+      .returning('*')
+      .insert({
+        name: name,
+        username: newUsername[0],
+        joined: new Date()
+      })
+      .then(newUser=> {
+        res.json(newUser[0])
+      })
+    })
+    .then(trx.commit)
+    .catch(trx.rollback)
+  })
+  .catch(err=> res.status(400).json('Unable to register'))
+});
+
+
+// BOARD, GETUSERNOTES
+app.post('/board', (req, res)=> {
+  const {username} = req.body;
+
+  db('notes').where({
+      username: username,
+      trashed: false
+  }).select('*')
+  .then(data => {
+    res.json(data);
+  })
+  .catch(err=> res.status(400).json('Unable to get notes'))
+});
 
 
 
