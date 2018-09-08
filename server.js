@@ -25,6 +25,11 @@ const db = require('knex')({
 //REGISTER
 app.post('/register', (req, res)=> {
   const {name, username, password} = req.body;
+
+  if (!name || !username || !password) {
+    return res.status(400).json('fields empty');
+  }
+
   const hash = bcrypt.hashSync(password);
 
   db.transaction(trx => {
