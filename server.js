@@ -72,6 +72,23 @@ app.post('/board', (req, res)=> {
   .catch(err=> res.status(400).json('Unable to get notes'))
 });
 
+// BOARD, CREATE NEWNOTE
+app.post('/boardnewstickie', (req, res) => {
+  const {newnote, username} = req.body;
+
+  db('notes').insert({
+    username: username,
+    content: newnote,
+    created: new Date()
+  }).returning('*')
+  .then(data => {
+    res.json(data[0]);
+  })
+  .catch(err=> res.status(400).json('Unable to create new note'))
+
+});
+
+
 
 
 
