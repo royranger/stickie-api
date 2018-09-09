@@ -58,12 +58,41 @@ app.post('/register', (req, res)=> {
 });
 
 
+// SIGN IN
+app.post('/signin', (req, res)=> {
+  const {username, password} = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json('fields empty');
+  }
+
+  db('login').where({username: username})
+            .select('username', 'hash')
+            .then(data=> {
+              const isValid = bcrypt.compareSync(password, data[0].hash);
+              if (isValid) {
+                return db('users').where({
+                  username: username
+                }).select('*')
+                  .then(user=> {
+                    res.json(user[0])
+                  })
+                  .catch(err=> res.status(400).json('unable to get user'))
+              } else {
+                res.status(400).json('wrong username and/or password')
+              }
+            })
+            .catch(err=> res.status(400).json('wrong username and/or password'))  
+
+});
+
+
 // BOARD, GETUSERNOTES
 app.post('/board', (req, res)=> {
-  const {username} = req.body;
+  const {userid} = req.body;
 
   db('notes').where({
-      username: username,
+      userid: userid,
       trashed: false
   }).select('*')
   .then(data => {
@@ -74,9 +103,10 @@ app.post('/board', (req, res)=> {
 
 // BOARD, CREATE NEWNOTE
 app.post('/boardnewstickie', (req, res) => {
-  const {newnote, username} = req.body;
+  const {newnote, userid, username} = req.body;
 
   db('notes').insert({
+    userid: userid,
     username: username,
     content: newnote,
     created: new Date()
