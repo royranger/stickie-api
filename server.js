@@ -82,7 +82,7 @@ app.post('/signin', (req, res)=> {
                 res.status(400).json('wrong username and/or password')
               }
             })
-            .catch(err=> res.status(400).json('wrong username and/or password'))  
+            .catch(err=> res.status(400).json('wrong username and/or password'))
 
 });
 
@@ -118,9 +118,21 @@ app.post('/boardnewstickie', (req, res) => {
 
 });
 
+// BOARD, DELETENOTE
+app.put('/boarddelete', (req, res) => {
+  const {noteid} = req.body;
 
-
-
+  db('notes')
+  .where('id', '=', noteid)
+  .update({
+    trashed: true
+})
+  .returning('*')
+  .then(data=> {
+    res.json(data[0]);
+  })
+  .catch(err=> res.status(400).json('Unable to delete note'))
+});
 
 
 
