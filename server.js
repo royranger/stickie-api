@@ -135,6 +135,22 @@ app.put('/boarddelete', (req, res) => {
 });
 
 
+// BOARD, EDITNOTE
+app.put('/boardedit', (req, res) => {
+  const {noteid, newnote} = req.body;
+
+  db('notes')
+    .where('id', '=', noteid)
+    .update({
+      content: newnote
+    })
+    .returning('*')
+    .then(data=> {
+      res.json(data[0])
+    })
+    .catch(err=> res.status(400).json('Unable to edit note'))
+});
+
 
 
 app.listen(3001, () => {
