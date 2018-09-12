@@ -151,6 +151,24 @@ app.put('/boardedit', (req, res) => {
     .catch(err=> res.status(400).json('Unable to edit note'))
 });
 
+// UPDATE NOTECOUNT
+app.put('/boardnotecount', (req, res) => {
+  const {id} = req.body;
+
+  db('users')
+    .where('id', '=', id)
+    .returning('totalnotes')
+    .increment('totalnotes', 1)
+    .then(totalnotes => {
+      if(totalnotes.length) {
+        res.json(totalnotes[0])
+      } else {
+        res.status(400).json('User not found')
+      }
+    })
+    .catch(err=> res.status(400).json('unable to get note count'))
+});
+
 
 
 app.listen(3001, () => {
